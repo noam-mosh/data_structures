@@ -50,30 +50,15 @@ namespace data_structures {
 
         void StoreInOrder(AVLNode<T,S>* root, T* inorder, int n, int* index_ptr);
 
-        S Rank(AVLNode<T,S>* root, T& key);
+        S Rank(AVLNode<T,S>* root, int key);
 
 //        AVLNode<T,S>* Select(AVLNode<T,S>* root, int k);
 
         AVLNode<T,S>* SelectMinBigger(AVLNode<T,S>* root, int k);
     };
 
-//    template<class T, class S>
-//    AVLNode<T,S>* RankAVLTree<T,S>::Select(AVLNode<T,S>* root, int k)
-//    {
-//        if (root == nullptr)
-//            return nullptr;
-////        if (root->w_info == k)
-////            return root;
-//        if (root->left && (root->left->w == -(root->w_info - k)))
-//            return root;
-//        else if (root->left && (root->left->w > -(root->w_info - k)))
-//            return Select(root->left, k);
-//        else
-//            return Select(root->right, -((root->left->w + root->w_info) - k));
-//    }
-
     template<class T, class S>
-    S RankAVLTree<T,S>::Rank(AVLNode<T,S>* root, T& key)
+    S RankAVLTree<T,S>::Rank(AVLNode<T,S>* root, int key)
     {
         S r{};
         while (root->data != key)
@@ -95,23 +80,19 @@ namespace data_structures {
     template<class T, class S>
     AVLNode<T,S>* RankAVLTree<T,S>::SelectMinBigger(AVLNode<T,S>* root, int k)
     {
-        if (root == nullptr)
-            return nullptr;
-//        if (root->w_info == k)
-//            return root;
-        if (root->left && (root->left->w == -(root->w_info - k)))
+        if (root->left && (root->left->w == ((root->w_info - k)*(-1))))
             return root;
-        else if (root->left && (root->left->w < -(root->w_info - k))) {
+        if (root->left && (root->left->w < ((root->w_info - k)*(-1))))
+        {
             if (root->right == nullptr)
                 return nullptr;
-            return SelectMinBigger(root->right, -((root->left->w + root->w_info) - k));
+            return SelectMinBigger(root->right, ((root->left->w + root->w_info) - k)*(-1));
         }
-        else {
-            if (root->left && root->left->w < k)
-                return root;
-            else if (root->left)
-                return SelectMinBigger(root->left, k);
-        }
+        else if (root->left && root->left->w < k)
+            return root;
+        else if (root->left)
+            return SelectMinBigger(root->left, k);
+        return root;
     }
 
     template<class T, class S>
@@ -322,17 +303,6 @@ namespace data_structures {
         while (current->GetLeft() != nullptr)
             current = current->GetLeft();
         return current;
-    }
-
-    // stores inorder travel of a tree to an array of size n
-    template<class T, class S>
-    void RankAVLTree<T,S>::PrintInOrder(AVLNode<T,S>* root)
-    {
-        if (root == nullptr)
-            return;
-        PrintInOrder(root->GetLeft());
-        std::cout << root->GetData() << " ";
-        PrintInOrder(root->GetRight());
     }
 
     template<class T, class S>

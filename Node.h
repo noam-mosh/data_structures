@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
+namespace data_structures {
 template<class T>
 class Node
 {
@@ -19,5 +19,5 @@ class Node
     T element;
     Node* next;
 };
-
+}
 #endif //WET2_NODE_H

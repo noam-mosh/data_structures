@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "Node.h"
 #define P 17
-
+namespace data_structures {
 typedef enum {
     SUCCESS,
     FAILURE,
@@ -195,7 +195,7 @@ int HashTable<T>::HashFunction(int Key){
     }
     return (Key % table_size);
 }
-
+}
 
 
 #endif //WET2_HASHTABLE_H

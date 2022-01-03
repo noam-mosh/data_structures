@@ -12,7 +12,7 @@ namespace data_structures {
     public:
         friend class AVLNode<T, S>;
 
-        AVLNode<T, S>* tree_root;
+        AVLNode<T,S>* tree_root;
 
         int size;
 
@@ -26,7 +26,7 @@ namespace data_structures {
 
         AVLNode<T,S>* Find(AVLNode<T,S> *root, const T &data) const;
 
-        StatusType Insert(T& value);
+        StatusType Insert(T& value, S& w_value);
 
         void RemoveNode(T& data);
 
@@ -50,12 +50,32 @@ namespace data_structures {
 
         void StoreInOrder(AVLNode<T,S>* root, T* inorder, int n, int* index_ptr);
 
+        S Rank(AVLNode<T,S>* root, T& key);
+
+//        AVLNode<T,S>* Select(AVLNode<T,S>* root, int k);
+
+        AVLNode<T,S>* SelectMinBigger(AVLNode<T,S>* root, int k);
     };
 
+//    template<class T, class S>
+//    AVLNode<T,S>* RankAVLTree<T,S>::Select(AVLNode<T,S>* root, int k)
+//    {
+//        if (root == nullptr)
+//            return nullptr;
+////        if (root->w_info == k)
+////            return root;
+//        if (root->left && (root->left->w == -(root->w_info - k)))
+//            return root;
+//        else if (root->left && (root->left->w > -(root->w_info - k)))
+//            return Select(root->left, k);
+//        else
+//            return Select(root->right, -((root->left->w + root->w_info) - k));
+//    }
+
     template<class T, class S>
-    S Rank(AVLNode<T,S>* root, T key)
+    S RankAVLTree<T,S>::Rank(AVLNode<T,S>* root, T& key)
     {
-        S r();
+        S r{};
         while (root->data != key)
         {
             if (root->data < key) {
@@ -72,7 +92,29 @@ namespace data_structures {
         return r;
     }
 
-    template<class T>
+    template<class T, class S>
+    AVLNode<T,S>* RankAVLTree<T,S>::SelectMinBigger(AVLNode<T,S>* root, int k)
+    {
+        if (root == nullptr)
+            return nullptr;
+//        if (root->w_info == k)
+//            return root;
+        if (root->left && (root->left->w == -(root->w_info - k)))
+            return root;
+        else if (root->left && (root->left->w < -(root->w_info - k))) {
+            if (root->right == nullptr)
+                return nullptr;
+            return SelectMinBigger(root->right, -((root->left->w + root->w_info) - k));
+        }
+        else {
+            if (root->left && root->left->w < k)
+                return root;
+            else if (root->left)
+                return SelectMinBigger(root->left, k);
+        }
+    }
+
+    template<class T, class S>
     T* MergeArrays(T* array1, T* array2, int n1, int n2);
 
     template<class T, class S>
@@ -83,7 +125,7 @@ namespace data_structures {
     }
 
     template<class T, class S>
-    void RankAVLTree<T,S>::DeleteRecursiveAVLNode(RankAVLTree<T,S> *node) {
+    void RankAVLTree<T,S>::DeleteRecursiveAVLNode(AVLNode<T,S> *node) {
         if (node) {
             DeleteRecursiveAVLNode(node->GetLeft());
             DeleteRecursiveAVLNode(node->GetRight());
@@ -93,10 +135,10 @@ namespace data_structures {
     }
 
     template<class T, class S>
-    StatusType RankAVLTree<T,S>::Insert(T& value) {
-        if (Find(tree_root, value))
+    StatusType RankAVLTree<T,S>::Insert(T& data_value, S& w_value) {
+        if (Find(tree_root, data_value))
             return INVALID_INPUT;
-        auto* new_node = new RankAVLTree<T,S>(value);
+        auto* new_node = new AVLNode<T,S>(data_value, w_value);
         if (!new_node)
             return ALLOCATION_ERROR;
         if (!tree_root)
@@ -157,8 +199,8 @@ namespace data_structures {
         return root;
     }
 
-    template<class T>
-    AVLNode<T> *AVLTree<T>::Find(AVLNode<T>* root, const T& data) const {
+    template<class T, class S>
+    AVLNode<T,S> *RankAVLTree<T,S>::Find(AVLNode<T,S>* root, const T& data) const {
         if (root) {
             if (root->GetData() == data)
                 return root;
@@ -170,8 +212,8 @@ namespace data_structures {
         return nullptr;
     }
 
-    template<class T>
-    int AVLTree<T>::GetHeight(AVLNode<T>* root) const {
+    template<class T, class S>
+    int RankAVLTree<T,S>::GetHeight(AVLNode<T,S>* root) const {
         int height = 0;
         if (root) {
             int leftHeight = GetHeight(root->GetLeft());
@@ -181,17 +223,17 @@ namespace data_structures {
         return height;
     }
 
-    template<class T>
-    int AVLTree<T>::GetBalanceFactor(AVLNode<T>* root) const {
+    template<class T, class S>
+    int RankAVLTree<T,S>::GetBalanceFactor(AVLNode<T,S>* root) const {
         int balance = 0;
         if (root)
             balance = GetHeight(root->GetLeft()) - GetHeight(root->GetRight());
         return balance;
     }
 
-    template<class T>
-    AVLNode<T>* AVLTree<T>::RotateToLeft(AVLNode<T>* root) {
-        AVLNode<T>* newRoot = root->GetRight();
+    template<class T, class S>
+    AVLNode<T,S>* RankAVLTree<T,S>::RotateToLeft(AVLNode<T,S>* root) {
+        AVLNode<T,S>* newRoot = root->GetRight();
         root->SetRight(newRoot->GetLeft());
         if (newRoot->GetLeft())
             newRoot->GetLeft()->SetFather(root);
@@ -227,9 +269,9 @@ namespace data_structures {
         return newRoot;
     }
 
-    template<class T>
-    AVLNode<T>* AVLTree<T>::RotateToRight(AVLNode<T>* root) {
-        AVLNode<T>* newRoot = root->GetLeft();
+    template<class T, class S>
+    AVLNode<T,S>* RankAVLTree<T,S>::RotateToRight(AVLNode<T,S>* root) {
+        AVLNode<T,S>* newRoot = root->GetLeft();
         root->SetLeft(newRoot->GetRight());
         if (newRoot->GetRight())
             newRoot->GetRight()->SetFather(root);
@@ -265,26 +307,26 @@ namespace data_structures {
         return newRoot;
     }
 
-    template<class T>
-    AVLNode<T>* AVLTree<T>::GetMax(AVLNode<T>* root){
-        AVLNode<T>* current = root;
+    template<class T, class S>
+    AVLNode<T,S>* RankAVLTree<T,S>::GetMax(AVLNode<T,S>* root){
+        AVLNode<T,S>* current = root;
         while (current->GetRight() != nullptr)
             current = current->GetRight();
         return current;
     }
 
-    template<class T>
-    AVLNode<T>* AVLTree<T>::GetMin(AVLNode<T>* root)
+    template<class T, class S>
+    AVLNode<T,S>* RankAVLTree<T,S>::GetMin(AVLNode<T,S>* root)
     {
-        AVLNode<T>* current = root;
+        AVLNode<T,S>* current = root;
         while (current->GetLeft() != nullptr)
             current = current->GetLeft();
         return current;
     }
 
     // stores inorder travel of a tree to an array of size n
-    template<class T>
-    void AVLTree<T>::PrintInOrder(AVLNode<T>* root)
+    template<class T, class S>
+    void RankAVLTree<T,S>::PrintInOrder(AVLNode<T,S>* root)
     {
         if (root == nullptr)
             return;
@@ -293,8 +335,8 @@ namespace data_structures {
         PrintInOrder(root->GetRight());
     }
 
-    template<class T>
-    void AVLTree<T>::StoreInOrder(AVLNode<T>* root, T* inorder, int n, int* index_ptr)
+    template<class T, class S>
+    void RankAVLTree<T,S>::StoreInOrder(AVLNode<T,S>* root, T* inorder, int n, int* index_ptr)
     {
         if (root == nullptr || inorder == nullptr || *index_ptr == n)
             return;
@@ -307,7 +349,7 @@ namespace data_structures {
     }
 
     // A utility function that merges two sorted arrays into one
-    template<class T>
+    template<class T, class S>
     T* MergeArrays(T* array1, T* array2, int n1, int n2)
     {
         T* mergedArray = new T[n1 + n2]();
@@ -328,8 +370,8 @@ namespace data_structures {
         return mergedArray;
     }
 
-    template <class T>
-    AVLNode<T>* AVLTree<T>::RemoveAVLNode(AVLNode<T>* node, T& data)
+    template <class T, class S>
+    AVLNode<T,S>* RankAVLTree<T,S>::RemoveAVLNode(AVLNode<T,S>* node, T& data)
     {
         if (node == nullptr)
             return node;
@@ -342,7 +384,7 @@ namespace data_structures {
             // node with only one son or no son
             if((node->GetLeft() == nullptr) || (node->GetRight() == nullptr))
             {
-                AVLNode<T>* son = node->GetLeft() ? node->GetLeft() : node->GetRight();
+                AVLNode<T,S>* son = node->GetLeft() ? node->GetLeft() : node->GetRight();
                 // No child case
                 if (son == nullptr)
                 {
@@ -368,12 +410,12 @@ namespace data_structures {
             else
             {
                 // node with two sons:
-                AVLNode<T>* minimal = GetMin(node->GetRight());
+                AVLNode<T,S>* minimal = GetMin(node->GetRight());
                 if (minimal == nullptr)
                     return nullptr;
                 // connect min
-                AVLNode<T> *min_father = minimal->GetFather();
-                AVLNode<T> *min_right = minimal->GetRight();
+                AVLNode<T,S> *min_father = minimal->GetFather();
+                AVLNode<T,S> *min_right = minimal->GetRight();
                 // node is root
 
                 if (node->GetFather() && node->GetFather()->GetRight() == node)
@@ -421,7 +463,7 @@ namespace data_structures {
         node->w = node->w_info;
         if (node->left)
             node->w += node->left->w;
-        if (root->right)
+        if (node->right)
             node->w += node->right->w;
 
         int balance = GetBalanceFactor(node);
@@ -448,8 +490,8 @@ namespace data_structures {
         return node;
     }
 
-    template <class T>
-    void AVLTree<T>::RemoveNode(T& data)
+    template <class T, class S>
+    void RankAVLTree<T,S>::RemoveNode(T& data)
     {
         if(Find(tree_root, data))
         {
@@ -463,21 +505,21 @@ namespace data_structures {
         }
     }
 
-    template <class T>
-    AVLNode<T>* BuildAVLTreeFromSortedArray(T* array, int start, int end, AVLNode<T>* root)
+    template <class T, class S>
+    AVLNode<T,S>* BuildAVLTreeFromSortedArray(T* array, int start, int end, AVLNode<T,S>* root)
     {
         if (start > end)
             return nullptr;
         int mid = (start + end)/2;
-        auto* node = new AVLNode<T>(array[mid]);
+        auto* node = new AVLNode<T,S>(array[mid]);
         node->SetFather(root);
         node->SetLeft(BuildAVLTreeFromSortedArray(array, start, mid-1, node));
         node->SetRight(BuildAVLTreeFromSortedArray(array, mid+1, end, node));
         return node;
     }
 
-    template <class T>
-    AVLTree<T> MergeTwoAVLTrees(AVLTree<T>* tree1, AVLTree<T>* tree2){
+    template <class T, class S>
+    RankAVLTree<T,S> MergeTwoAVLTrees(RankAVLTree<T,S>* tree1, RankAVLTree<T,S>* tree2){
         int size1 = tree1->size, size2 = tree2->size;
         T *array1 = new T[size1]();
         T *array2 = new T[size2]();
@@ -485,8 +527,8 @@ namespace data_structures {
         tree1->StoreInOrder(tree1->tree_root, array1, size1, &index1);
         tree2->StoreInOrder(tree2->tree_root, array2, size2, &index2);
         T* mergedArray = MergeArrays(array1, array2, size1, size2);
-        AVLNode<T>* root = nullptr;
-        AVLTree<T> mergedTree(BuildAVLTreeFromSortedArray(mergedArray, 0, (size1 + size2 - 1), root), (size1 + size2));
+        AVLNode<T,S>* root = nullptr;
+        RankAVLTree<T,S> mergedTree(BuildAVLTreeFromSortedArray(mergedArray, 0, (size1 + size2 - 1), root), (size1 + size2));
         delete[] array1;
         delete[] array2;
         delete[] mergedArray;

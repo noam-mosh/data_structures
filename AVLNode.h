@@ -25,7 +25,7 @@ namespace data_structures {
 
 //        bool operator==(const AVLNode<T>& node);
 
-        bool operator<(const AVLNode<T, S>& node);
+        bool operator<(const AVLNode<T,S>& node);
 
         const T& GetData() const {return data;}
 

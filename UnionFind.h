@@ -2,104 +2,60 @@
 #define WET2_UNIONFIND_H
 #include <stdio.h>
 #include <stdlib.h>
+namespace data_structures {
+    class UnionFind {
+    public:
+        int *parent;
+        int *size;
+        int group_size;
 
-class UnionFind {
-// a structure to represent an edge in the graph
-struct Edge {
-    int src, dest;
-};
+        UnionFind(int k) : group_size(k) {
+            parent = new int[group_size];
+            size = new int[group_size];
+            for (int i = 0; i < group_size; ++i) {
+                parent[i] = -1;
+                size[i] = 0;
+            }
+        }
 
-// a structure to represent a graph
-struct Graph {
-    // V-> Number of vertices, E-> Number of edges
-    int V, E;
+        int MakeSet(int i) {
+            parent[i - 1] = i - 1;
+            parent[i - 1] = 1;
+            return i;
+        }
 
-    // graph is represented as an array of edges
-    struct Edge* edge;
-};
+        int find(int i) {
+            // if group i does not exists in this struct
+            if (parent[i - 1] == -1)
+                return -1;
 
-struct subset {
-    int parent;
-    int rank;
-};
+            int j = i - 1;
+            while (parent[j] != j) {
+                j = parent[j];
+            }
+            int group_num = j;
+            // todo: is it j-1
+            int k = i - 1;
+            while (parent[k] != k) {
+                int temp = parent[k];
+                parent[k] = group_num;
+                k = temp;
+            }
+            return group_num + 1;
+        }
 
-// Creates a graph with V vertices and E edges
-struct Graph* createGraph(int V, int E)
-{
-    struct Graph* graph
-            = (struct Graph*)malloc(sizeof(struct Graph));
-    graph->V = V;
-    graph->E = E;
-
-    graph->edge = (struct Edge*)malloc(
-            graph->E * sizeof(struct Edge));
-
-    return graph;
+        int Union(int p, int q) {
+            // p and q are the groups after calling find
+            if (size[p - 1] <= size[q - 1]) {
+                parent[p - 1] = q - 1;
+                size[q - 1] += size[p - 1];
+                return q;
+            } else {
+                parent[q - 1] = p - 1;
+                size[p - 1] += size[q - 1];
+                return p;
+            }
+        }
+    };
 }
-
-// A utility function to find set of an element i
-// (uses path compression technique)
-int find(struct subset subsets[], int i)
-{
-    // find root and make root as parent of i (path
-    // compression)
-    if (subsets[i].parent != i)
-        subsets[i].parent
-                = find(subsets, subsets[i].parent);
-
-    return subsets[i].parent;
-}
-
-// A function that does union of two sets of x and y
-// (uses union by rank)
-void Union(struct subset subsets[], int xroot, int yroot)
-{
-
-    // Attach smaller rank tree under root of high rank tree
-    // (Union by Rank)
-    if (subsets[xroot].rank < subsets[yroot].rank)
-        subsets[xroot].parent = yroot;
-    else if (subsets[xroot].rank > subsets[yroot].rank)
-        subsets[yroot].parent = xroot;
-
-        // If ranks are same, then make one as root and
-        // increment its rank by one
-    else {
-        subsets[yroot].parent = xroot;
-        subsets[xroot].rank++;
-    }
-}
-
-// The main function to check whether a given graph contains
-// cycle or not
-int isCycle(struct Graph* graph)
-{
-    int V = graph->V;
-    int E = graph->E;
-
-    // Allocate memory for creating V sets
-    struct subset* subsets
-            = (struct subset*)malloc(V * sizeof(struct subset));
-
-    for (int v = 0; v < V; ++v) {
-        subsets[v].parent = v;
-        subsets[v].rank = 0;
-    }
-
-    // Iterate through all edges of graph, find sets of both
-    // vertices of every edge, if sets are same, then there
-    // is cycle in graph.
-    for (int e = 0; e < E; ++e) {
-        int x = find(subsets, graph->edge[e].src);
-        int y = find(subsets, graph->edge[e].dest);
-
-        if (x == y)
-            return 1;
-
-        Union(subsets, x, y);
-    }
-    return 0;
-}
-};
-
 #endif //WET2_UNIONFIND_H

@@ -1,7 +1,7 @@
 #ifndef WET2_UNIONFIND_H
 #define WET2_UNIONFIND_H
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 namespace data_structures {
     class UnionFind {
     public:
@@ -9,7 +9,7 @@ namespace data_structures {
         int *size;
         int group_size;
 
-        UnionFind(int k) : group_size(k) {
+        explicit UnionFind(int k) : group_size(k) {
             parent = new int[group_size];
             size = new int[group_size];
             for (int i = 0; i < group_size; ++i) {
@@ -18,13 +18,13 @@ namespace data_structures {
             }
         }
 
-        int MakeSet(int i) {
+        int MakeSet(int i) const {
             parent[i - 1] = i - 1;
-            parent[i - 1] = 1;
+            size[i - 1] = 1;
             return i;
         }
 
-        int find(int i) {
+        int Find(int i) const {
             // if group i does not exists in this struct
             if (parent[i - 1] == -1)
                 return -1;
@@ -44,9 +44,9 @@ namespace data_structures {
             return group_num + 1;
         }
 
-        int Union(int p, int q) {
+        int Union(int p, int q) const {
             // p and q are the groups after calling find
-            if (size[p - 1] <= size[q - 1]) {
+            if (size[p - 1] < size[q - 1]) {
                 parent[p - 1] = q - 1;
                 size[q - 1] += size[p - 1];
                 return q;

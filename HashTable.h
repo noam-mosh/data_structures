@@ -4,6 +4,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Node.h"
+#define P 17
+
+typedef enum {
+    SUCCESS,
+    FAILURE,
+    ALLOCATION_ERROR,
+    ALREADY_EXISTS,
+    DO_NOT_EXIST
+} HashStatus;
 
 template<class T>
 class HashTable{
@@ -12,9 +21,9 @@ class HashTable{
     ~HashTable();
     HashTable(const HashTable& other)=default;//check
     HashTable& operator=(const HashTable& other)=default;//check
-    void Insert(T element);
-    Node<T>* Find(T element);//returns the Node with the wanted data
-    void remove(T element);//assuming the data exist
+    HashStatus Insert(T element);
+    Node<T>* Find(T element);//returns the Node with the wanted data nullptr if it doesnt exist
+    HashStatus remove(T element);//assuming the data exist
     //int getSize();
 
     //private:
@@ -22,7 +31,7 @@ class HashTable{
     int table_size;
     Node<T>** table;
     void Resize();
-    int HashFunction(int key);
+    int HashFunction(int Key);
 };
 
 template<class T>
@@ -40,31 +49,52 @@ HashTable<T>:: ~HashTable(){
     delete[] table;
 }
 
-template<class T>
-void HashTable<T>::Insert(T element){
-    int index= HashFunction(element);//what function give the key?
+template<class T>//help function to insert into a list in an array
+HashStatus InsertToTable(T element,int index, Node<T>** table){
     if(table[index]==nullptr){
-        table[index]=new Node(element);
+        Node<T>* newNode=new Node<T>(element);
+        if (!newNode){
+            return ALLOCATION_ERROR;
+        }
+        table[index]=newNode;
     }
     else{
-        Node* temp=table[index];
-        table[index]=new Node(element,temp);
+        Node<T>* temp=table[index];
+        Node<T>* newNode=new Node<T>(element,temp);
+        if (!newNode){
+            return ALLOCATION_ERROR;
+        }
+        table[index]=newNode;
+    }
+    return SUCCESS;
+}
+
+template<class T>
+HashStatus HashTable<T>::Insert(T element){
+    if (this->Find(element)){
+        return ALREADY_EXISTS;
+    }
+    int index= HashFunction(element.key());
+    if (InsertToTable(element,index,table)==ALLOCATION_ERROR){
+        return ALLOCATION_ERROR;
     }
     elements_num++;
     if(table_size==elements_num || table_size>=4*elements_num){
         this->Resize();
     }
+    return SUCCESS;
 }
 
 template<class T>
 Node<T>* HashTable<T>::Find(T element){
-    int index= HashFunction(element);
-    Node<T>* curr=table[index];
+    int index= HashFunction(element.key());
+   
     if(table[index]==nullptr){
         return nullptr;
     }
     else{
-        while (curr->next!=nullptr)
+         Node<T>* curr=table[index];
+        while (curr!=nullptr)
         {
             if(curr->element==element){
                 return curr;
@@ -76,10 +106,14 @@ Node<T>* HashTable<T>::Find(T element){
 }
 
 template<class T>
-void HashTable<T>::remove(T element){
-    int index= HashFunction(element);
+HashStatus HashTable<T>::remove(T element){
+    if ((this->Find(element))==nullptr){
+        return DO_NOT_EXIST;
+    }
+    
+    int index= HashFunction(element.key());
     Node<T>* curr=table[index];
-    Node<t>* prev = table[index];
+    Node<T>* prev = table[index];
     if(table[index]->element==element){//if its the head
         Node<T>* temp=curr->next;
         delete curr;
@@ -98,24 +132,68 @@ void HashTable<T>::remove(T element){
     if(table_size==elements_num || table_size>=4*elements_num){
         this->Resize();
     }
+    return SUCCESS;
 }
 
 template<class T>
 void HashTable<T>::Resize(){
-    if(table_size==elements_num){
+    if(table_size==elements_num){//needs to increase the array
        Node<T>** newTable = new Node<T>* [2*table_size]{nullptr};
-       for(int i =0; i<table_size;i++){
+       int old_table_size=table_size;
+       table_size=table_size*2;
+       for(int i =0; i<old_table_size;i++){
            Node<T>* curr=table[i];
-           if(table[i]!=nullptr){
-
+           while (curr!=nullptr)
+               {
+                   InsertToTable(curr->element,HashFunction((curr->element).key()),newTable);
+                   curr=curr->next;
+               }
            }
+        for(int i =0; i<old_table_size;i++){
+           Node<T>* curr=table[i];
+           while (curr!=nullptr){
+               Node<T>* temp=curr->next;
+               delete curr;
+               curr=temp;
+           }
+           table[i]=nullptr;
        }
+       delete[] table;
+       table=newTable;
+    }
+
+    if(table_size>=4*elements_num && table_size>P){//needs to decrease the array
+    int newSize = 0.5*table_size;
+    Node<T>** newTable = new Node<T>* [newSize]{nullptr};
+       int old_table_size=table_size;
+       table_size=table_size*0.5;
+       for(int i =0; i<old_table_size;i++){
+           Node<T>* curr=table[i];
+           while (curr!=nullptr)
+               {
+                   InsertToTable(curr->element,HashFunction(curr->element.key()),newTable);
+               }
+           }
+        for(int i =0; i<old_table_size;i++){
+           Node<T>* curr=table[i];
+           while (curr!=nullptr){
+               Node<T>* temp=curr->next;
+               delete curr;
+               curr=temp;
+           }
+           table[i]=nullptr;
+       }
+       delete[] table;
+       table=newTable;
     }
 }
 
 template<class T>
-int HashTable<T>::HashFunction(int key){
-    return (key % table_size);
+int HashTable<T>::HashFunction(int Key){
+    if(Key<0){
+        Key=-Key;
+    }
+    return (Key % table_size);
 }
 
 

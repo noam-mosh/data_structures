@@ -21,9 +21,9 @@ namespace data_structures {
 
         ~AVLNode() = default;
 
-        AVLNode& operator=(const AVLNode<T, S>& node) = default;
+        AVLNode& operator=(const AVLNode<T,S>& node) = default;
 
-//        bool operator==(const AVLNode<T>& node);
+        bool operator==(const AVLNode<T,S>& node);
 
         bool operator<(const AVLNode<T,S>& node);
 
@@ -44,8 +44,15 @@ namespace data_structures {
     };
 
     template<class T, class S>
-    bool AVLNode<T, S>::operator<(const AVLNode<T, S> &node) {
+    bool AVLNode<T,S>::operator<(const AVLNode<T,S> &node) {
         if (data < node.data)
+            return true;
+        return false;
+    }
+
+    template<class T, class S>
+    bool AVLNode<T,S>::operator==(const AVLNode<T,S> &node) {
+        if (data == node.data)
             return true;
         return false;
     }

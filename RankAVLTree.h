@@ -48,7 +48,7 @@ namespace data_structures {
 
         AVLNode<T,S>* RotateToRight(AVLNode<T,S> *root);
 
-        void StoreInOrder(AVLNode<T,S>* root, T* inorder, int n, int* index_ptr);
+        void StoreInOrder(AVLNode<T,S>* root, AVLNode<T,S>* inorder, int n, int* index_ptr);
 
         S Rank(AVLNode<T,S>* root, int key);
 
@@ -306,39 +306,19 @@ namespace data_structures {
     }
 
     template<class T, class S>
-    void RankAVLTree<T,S>::StoreInOrder(AVLNode<T,S>* root, T* inorder, int n, int* index_ptr)
+    void RankAVLTree<T,S>::StoreInOrder(AVLNode<T,S>* root, AVLNode<T,S>* inorder, int n, int* index_ptr)
     {
         if (root == nullptr || inorder == nullptr || *index_ptr == n)
             return;
         StoreInOrder(root->GetLeft(), inorder, n, index_ptr);
         if (*index_ptr == n)
             return;
-        inorder[*index_ptr] = root->GetData();
+        inorder[*index_ptr] = *(root);
         (*index_ptr)++; // increase index for next entry
         StoreInOrder(root->GetRight(), inorder, n, index_ptr);
     }
 
-    // A utility function that merges two sorted arrays into one
-    template<class T, class S>
-    T* MergeArrays(T* array1, T* array2, int n1, int n2)
-    {
-        T* mergedArray = new T[n1 + n2]();
-        int i = 0, j = 0, k = 0;
-        while (i < n1 && j < n2)
-        {
-            if (array1[i] < array2[j])
-                mergedArray[k++] = array1[i++];
-            else
-                mergedArray[k++] = array2[j++];
-        }
-        // If array1 is bigger
-        while (i < n1)
-            mergedArray[k++] = array1[i++];
-        // If array2 is bigger
-        while (j < n2)
-            mergedArray[k++] = array2[j++];
-        return mergedArray;
-    }
+
 
     template <class T, class S>
     AVLNode<T,S>* RankAVLTree<T,S>::RemoveAVLNode(AVLNode<T,S>* node, T& data)
@@ -476,7 +456,7 @@ namespace data_structures {
     }
 
     template <class T, class S>
-    AVLNode<T,S>* BuildAVLTreeFromSortedArray(T* array, int start, int end, AVLNode<T,S>* root)
+    AVLNode<T,S>* BuildAVLTreeFromSortedArray(AVLNode<T,S>* array, int start, int end, AVLNode<T,S>* root)
     {
         if (start > end)
             return nullptr;
@@ -485,20 +465,74 @@ namespace data_structures {
         node->SetFather(root);
         node->SetLeft(BuildAVLTreeFromSortedArray(array, start, mid-1, node));
         node->SetRight(BuildAVLTreeFromSortedArray(array, mid+1, end, node));
+        S left{};
+        S right{};
+        if (node->left)
+            left += node->left->w;
+        if (node->right)
+            right += node->right->w;
+        if(node) {
+            left += right;
+            node->w += left;
+        }
         return node;
+    }
+
+    // A utility function that merges two sorted arrays into one
+    template<class T, class S>
+    AVLNode<T,S>* MergeArrays(AVLNode<T,S>* array1, AVLNode<T,S>* array2, int n1, int n2, int* n)
+    {
+        auto* mergedArray = new AVLNode<T,S>[n1 + n2]();
+        int i = 0, j = 0, k = 0;
+        while (i < n1 && j < n2)
+        {
+            if (array1[i] < array2[j])
+            {
+                mergedArray[k++] = array1[i++];
+                (*n)++;
+            }
+            if (array1[i] == array2[j])
+            {
+                array1[i].w_info += array2[j].w_info;
+                mergedArray[k++] = array1[i++];
+                j++;
+                (*n)++;
+            }
+            else
+            {
+                mergedArray[k++] = array2[j++];
+                (*n)++;
+            }
+        }
+        // If array1 is bigger
+        while (i < n1)
+        {
+            mergedArray[k++] = array1[i++];
+            (*n)++;
+        }
+        // If array2 is bigger
+        while (j < n2)
+        {
+            mergedArray[k++] = array2[j++];
+            (*n)++;
+        }
+        return mergedArray;
     }
 
     template <class T, class S>
     RankAVLTree<T,S> MergeTwoAVLTrees(RankAVLTree<T,S>* tree1, RankAVLTree<T,S>* tree2){
-        int size1 = tree1->size, size2 = tree2->size;
-        T *array1 = new T[size1]();
-        T *array2 = new T[size2]();
+        int size1 = tree1->size, size2 = tree2->size, new_size=0;
+        auto* array1 = new AVLNode<T,S>[size1]();
+        auto* array2 = new AVLNode<T,S>[size2]();
         int index1 = 0, index2 = 0;
         tree1->StoreInOrder(tree1->tree_root, array1, size1, &index1);
         tree2->StoreInOrder(tree2->tree_root, array2, size2, &index2);
-        T* mergedArray = MergeArrays(array1, array2, size1, size2);
+        AVLNode<T,S>* mergedArray = MergeArrays(array1, array2, size1, size2, &new_size);
+        for (int i = 0; i < new_size; ++i) {
+            mergedArray[i].w = mergedArray[i].w_info;
+        }
         AVLNode<T,S>* root = nullptr;
-        RankAVLTree<T,S> mergedTree(BuildAVLTreeFromSortedArray(mergedArray, 0, (size1 + size2 - 1), root), (size1 + size2));
+        RankAVLTree<T,S> mergedTree(BuildAVLTreeFromSortedArray(mergedArray, 0, (new_size - 1), root), new_size);
         delete[] array1;
         delete[] array2;
         delete[] mergedArray;

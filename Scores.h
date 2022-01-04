@@ -2,6 +2,9 @@
 #define WET2_SCORES_H
 #define NO_PLAYERS 0
 #include "RankAVLTree.h"
+#include "LevelRank.h"
+#define LEVEL int 
+
 namespace data_structures {
 class Scores{
     public:
@@ -12,7 +15,7 @@ class Scores{
     
     //private:
     int players_counter;
-    //RankAVLTree<> tree_levels;
+    RankAVLTree<LEVEL,LevelRank> tree_levels;
 };
 }
 

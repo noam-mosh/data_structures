@@ -7,9 +7,9 @@
 #define P 17
 namespace data_structures {
 typedef enum {
-    SUCCESS,
-    FAILURE,
-    ALLOCATION_ERROR,
+    SUCCES,
+    FAIL,
+    ALLOC_ERROR,
     ALREADY_EXISTS,
     DO_NOT_EXIST
 } HashStatus;
@@ -23,7 +23,7 @@ class HashTable{
     HashTable& operator=(const HashTable& other)=default;//check
     HashStatus Insert(T element);
     Node<T>* Find(T element);//returns the Node with the wanted data nullptr if it doesnt exist
-    HashStatus remove(T element);//assuming the data exist
+    HashStatus remove(T element);//assuming th e data exist
     //int getSize();
 
     //private:
@@ -54,7 +54,7 @@ HashStatus InsertToTable(T element,int index, Node<T>** table){
     if(table[index]==nullptr){
         Node<T>* newNode=new Node<T>(element);
         if (!newNode){
-            return ALLOCATION_ERROR;
+            return ALLOC_ERROR;
         }
         table[index]=newNode;
     }
@@ -62,11 +62,11 @@ HashStatus InsertToTable(T element,int index, Node<T>** table){
         Node<T>* temp=table[index];
         Node<T>* newNode=new Node<T>(element,temp);
         if (!newNode){
-            return ALLOCATION_ERROR;
+            return ALLOC_ERROR;
         }
         table[index]=newNode;
     }
-    return SUCCESS;
+    return SUCCES;
 }
 
 template<class T>
@@ -75,14 +75,14 @@ HashStatus HashTable<T>::Insert(T element){
         return ALREADY_EXISTS;
     }
     int index= HashFunction(element.key());
-    if (InsertToTable(element,index,table)==ALLOCATION_ERROR){
-        return ALLOCATION_ERROR;
+    if (InsertToTable(element,index,table)==ALLOC_ERROR){
+        return ALLOC_ERROR;
     }
     elements_num++;
     if(table_size==elements_num || table_size>=4*elements_num){
         this->Resize();
     }
-    return SUCCESS;
+    return SUCCES;
 }
 
 template<class T>
@@ -132,7 +132,7 @@ HashStatus HashTable<T>::remove(T element){
     if(table_size==elements_num || table_size>=4*elements_num){
         this->Resize();
     }
-    return SUCCESS;
+    return SUCCES;
 }
 
 template<class T>

@@ -2,12 +2,13 @@
 #define WET2_GROUP_H
 #include "Scores.h"
 #define MAX_SCALE 200
-
+#define NO_PLAYER 0
+#define LEVEL int 
 
 namespace data_structures {
 class Group{
     public:
-    Group():playerCounter(NO_PLAYERS),array_scores(new Scores[MAX_SCALE]){}
+    Group(int scale):playerCounter(NO_PLAYERS),array_scores(new Scores[scale]){}
     ~Group(){
         delete[] array_scores;
     }
@@ -16,7 +17,7 @@ class Group{
     //private:
     int playerCounter;
     Scores* array_scores;
-    //RankAVLTree<> tree_levels;
+    RankAVLTree<LEVEL,LevelRank> tree_levels;
 };
 }
 

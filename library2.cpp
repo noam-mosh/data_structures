@@ -53,13 +53,13 @@ StatusType AverageHighestPlayerLevelByGroup(void *DS, int GroupID, int m, double
     return ((PlayerManager*)(DS))->AverageHighestPlayerLevelByGroup(GroupID,m,level);
 }
 
-StatusType GetPlayersBound(void *DS, int GroupID, int score, int m,
+/*StatusType GetPlayersBound(void *DS, int GroupID, int score, int m,
                                          int * LowerBoundPlayers, int * HigherBoundPlayers){
      if (!DS){
         return INVALID_INPUT;
     }
     return ((PlayerManager*)(DS))->GetPlayersBound(GroupID,score,m,LowerBoundPlayers,HigherBoundPlayers);
-}
+}*/
 
 void Quit(void** DS){
     if(!DS){

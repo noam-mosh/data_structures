@@ -3,12 +3,13 @@
 #define INITIAL_LEVEL 0
 #define NO_SCORE -1
 #define NO_GROUP -1
+#define INITIAL_LEVEL
 
 namespace data_structures {
 class Player{
     public:
     Player(int playerID): playerID(playerID), groupID(NO_GROUP),score(NO_SCORE), level(INITIAL_LEVEL){}
-    Player(int PlayerID,int GroupID, int Score, int level):playerID(PlayerID),groupID(GroupID), score(Score), level(level){};
+    Player(int PlayerID,int GroupID, int Score):playerID(PlayerID),groupID(GroupID), score(Score), level(INITIAL_LEVEL){};
     ~Player()=default;
     Player(const Player& other)=default;
     Player& operator=(const Player& other) = default;

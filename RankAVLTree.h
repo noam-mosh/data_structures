@@ -55,6 +55,9 @@ namespace data_structures {
 //        AVLNode<T,S>* Select(AVLNode<T,S>* root, int k);
 
         AVLNode<T,S>* SelectMinBigger(AVLNode<T,S>* root, int k);
+
+        AVLNode<T,S>* MinBigger(AVLNode<T,S>* root, T key);
+
     };
 
     template<class T, class S>
@@ -94,6 +97,25 @@ namespace data_structures {
             return SelectMinBigger(root->left, k);
         return root;
     }
+
+    template<class T, class S>
+    AVLNode<T,S>* MinBigger(AVLNode<T,S>* root, T key){
+    if(root==nullptr){
+        return root;
+    }
+    if(root->data>key){
+        AVLNode<T,S>* Min=MinBigger(root->left,key);
+        if(Min==nullptr){
+            return root;
+        }
+        else{
+            return Min;
+        }
+    }
+    if(root->data<=key){
+        return MinBigger(root->right,key);
+    }    
+}
 
     template<class T, class S>
     T* MergeArrays(T* array1, T* array2, int n1, int n2);

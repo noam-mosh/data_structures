@@ -8,14 +8,16 @@
 namespace data_structures {
 class Scores{
     public:
-    Scores(): players_counter(NO_PLAYERS){}
-    ~Scores()=default;
+    Scores(): players_counter(NO_PLAYERS),tree_levels(new RankAVLTree<LEVEL,LevelRank>()){}
+    ~Scores(){
+        delete tree_levels;
+    }
     Scores(const Scores& other)=default;
     Scores& operator=(const Scores& other) = default;
     
     //private:
     int players_counter;
-    RankAVLTree<LEVEL,LevelRank> tree_levels;
+    RankAVLTree<LEVEL,LevelRank>* tree_levels;
 };
 }
 

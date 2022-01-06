@@ -121,7 +121,7 @@ HashStatus HashTable<T>::remove(T element){
     }
     else{
         curr=curr->next;
-        while (curr->element!=element)
+        while (!(curr->element==element))
         {   prev=prev->next;
             curr=curr->next;
         }

@@ -9,8 +9,8 @@ class Node
 {
     public:
     Node() = default;
-    Node(T element):element(T),next(nullptr){};
-    Node(T element,Node* ptr):element(T),next(ptr){};
+    Node(T element):element(element),next(nullptr){};
+    Node(T element,Node* ptr):element(element),next(ptr){};
     ~Node()=default;
     //Node(const Node& other)=default;
     Node& operator=(const Node<T>& node) = default;

@@ -8,16 +8,17 @@
 namespace data_structures {
 class Group{
     public:
-    Group(int scale):playerCounter(NO_PLAYERS),array_scores(new Scores[scale]){}
+    Group(int scale):playerCounter(NO_PLAYERS),array_scores(new Scores[scale]),tree_levels(new RankAVLTree<LEVEL, LevelRank>()){}
     ~Group(){
         delete[] array_scores;
+        delete tree_levels;
     }
     Group(const Group& other)=default;//check
     Group& operator=(const Group& node) = default;//check
     //private:
     int playerCounter;
     Scores* array_scores;
-    RankAVLTree<LEVEL,LevelRank> tree_levels;
+    RankAVLTree<LEVEL,LevelRank>* tree_levels;
 };
 }
 

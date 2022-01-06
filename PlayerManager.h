@@ -5,7 +5,7 @@
 #include "HashTable.h"
 #include "Player.h"
 #include "Group.h"
-#include"Scores.h"
+#include "Scores.h"
 #include "library2.h"
 #define LEVEL int 
 
@@ -26,11 +26,16 @@ namespace data_structures {
         /*StatusType GetPlayersBound(int GroupID, int score, int m,
                                          int * LowerBoundPlayers, int * HigherBoundPlayers);*/
         //utilitie function to calculate Level in bound in
-        double PlayerManager::GetPlayersInLevelBound(RankAVLTree<LEVEL,LevelRank>* LevelTree ,int player_counter, int lowerLevel, int higherLevel );
+        double GetPlayersInLevelBound(RankAVLTree<LEVEL,LevelRank>* LevelTree ,int player_counter, int lowerLevel, int higherLevel );
         //utilitie function to calculate average on a tree of m bigger
-        StatusType AverageHighestPlayerLevelByGroupHelp(RankAVLTree<LEVEL,LevelRank> levelTree,int m, double* avg);
+        StatusType AverageHighestPlayerLevelByGroupHelp(RankAVLTree<LEVEL,LevelRank>* levelTree,int m, double* avg);
         //utilitie function to change a level by one in our ranked tree
         void updateLevel(RankAVLTree<LEVEL,LevelRank>* LevelTree, int level, int change); 
+
+        StatusType GetPlayersBound(int GroupID, int score, int m,
+                                         int * LowerBoundPlayers, int * HigherBoundPlayers){
+                                             return FAILURE;
+                                         }
 
     //private:
     int all_players_counter;
@@ -38,7 +43,7 @@ namespace data_structures {
     int group_number;
     UnionFind groups;
     Group** group_array;
-    RankAVLTree<LEVEL,LevelRank> levels;
+    RankAVLTree<LEVEL,LevelRank>* levels;
     Scores* scores_array;
     HashTable<Player> players;
     };

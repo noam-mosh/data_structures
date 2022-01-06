@@ -3,7 +3,6 @@
 #define INITIAL_LEVEL 0
 #define NO_SCORE -1
 #define NO_GROUP -1
-#define INITIAL_LEVEL
 
 namespace data_structures {
 class Player{
@@ -14,7 +13,7 @@ class Player{
     Player(const Player& other)=default;
     Player& operator=(const Player& other) = default;
     bool operator==(const Player& other){
-        if(playerID==other.playerID && groupID==other.groupID && score==other.score && level==other.level){
+        if(playerID==other.playerID ){
             return true;
         }
         return false;

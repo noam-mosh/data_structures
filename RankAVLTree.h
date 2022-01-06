@@ -66,8 +66,13 @@ namespace data_structures {
         S r{};
         while (root->data != key)
         {
-            if (root->data < key) {
+            if (root->data < key) {//changed to check
+                if((root->left)){
                 r += root->left->w + root->w_info;
+                }
+                else{
+                    r+=root->w_info;
+                }
                 root = root->right;
             }
             if (root->data > key)
@@ -99,7 +104,7 @@ namespace data_structures {
     }
 
     template<class T, class S>
-    AVLNode<T,S>* MinBigger(AVLNode<T,S>* root, T key){
+    AVLNode<T,S>* RankAVLTree<T,S>::MinBigger(AVLNode<T,S>* root, T key){
     if(root==nullptr){
         return root;
     }
@@ -115,6 +120,7 @@ namespace data_structures {
     if(root->data<=key){
         return MinBigger(root->right,key);
     }    
+    return nullptr;
 }
 
     template<class T, class S>

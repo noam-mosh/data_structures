@@ -10,8 +10,13 @@ class Group{
     public:
     Group(int scale):playerCounter(NO_PLAYERS),array_scores(new Scores[scale]),tree_levels(new RankAVLTree<LEVEL, LevelRank>()){}
     ~Group(){
+        if(array_scores){
+        
         delete[] array_scores;
-        delete tree_levels;
+        }
+        if(tree_levels){
+            delete tree_levels;
+        }
     }
     Group(const Group& other)=default;//check
     Group& operator=(const Group& node) = default;//check

@@ -160,6 +160,9 @@ namespace data_structures {
 
     template<class T, class S>
     AVLNode<T,S>* RankAVLTree<T,S>::InsertAVLNode(AVLNode<T,S>* root, AVLNode<T,S>* inserted) {
+        if(root==nullptr){
+            return nullptr;
+        }
         if (root->GetData() == inserted->GetData())
             return nullptr;
         if (root->GetData() > inserted->GetData()) {

@@ -4,12 +4,15 @@
 #include "RankAVLTree.h"
 #include "LevelRank.h"
 #define LEVEL int 
+#include <memory>
+
 
 namespace data_structures {
 class Scores{
     public:
     Scores(): players_counter(NO_PLAYERS),tree_levels(new RankAVLTree<LEVEL,LevelRank>()){}
     ~Scores(){
+        if(tree_levels)
         delete tree_levels;
     }
     Scores(const Scores& other)=default;

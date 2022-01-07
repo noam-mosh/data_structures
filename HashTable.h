@@ -43,7 +43,14 @@ template<class T>
 HashTable<T>:: ~HashTable(){
     for(int i=0; i<table_size;i++){
         if(table[i]!=nullptr){
-            delete (table[i]);
+            Node<T>* temp=table[i];
+            Node<T>* next=table[i]->next;
+            while (temp!=nullptr){
+                next=temp->next;
+                delete temp;
+                temp=next;
+            }
+            //delete (table[i]);
         }
     }
     delete[] table;
@@ -138,7 +145,10 @@ HashStatus HashTable<T>::remove(T element){
 template<class T>
 void HashTable<T>::Resize(){
     if(table_size==elements_num){//needs to increase the array
-       Node<T>** newTable = new Node<T>* [2*table_size]{nullptr};
+       Node<T>** newTable = new Node<T>* [2*table_size];
+       for(int i=0; i<2*table_size;i++){
+           newTable[i]=nullptr;
+       }
        int old_table_size=table_size;
        table_size=table_size*2;
        for(int i =0; i<old_table_size;i++){
@@ -164,7 +174,10 @@ void HashTable<T>::Resize(){
 
     if(table_size>=4*elements_num && table_size>P){//needs to decrease the array
     int newSize = 0.5*table_size;
-    Node<T>** newTable = new Node<T>* [newSize]{nullptr};
+    Node<T>** newTable = new Node<T>* [newSize];
+    for(int i = 0; i<newSize;i++){
+        newTable[i]=nullptr;
+    }
        int old_table_size=table_size;
        table_size=table_size*0.5;
        for(int i =0; i<old_table_size;i++){

@@ -17,6 +17,10 @@ namespace data_structures {
                 size[i] = 0;
             }
         }
+        ~UnionFind(){
+            delete [] parent;
+            delete [] size;
+        }
 
         int MakeSet(int i) const {
             parent[i - 1] = i - 1;

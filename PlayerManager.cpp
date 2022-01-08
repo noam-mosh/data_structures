@@ -69,12 +69,13 @@ StatusType PlayerManager::MergeGroups(int GroupID1, int GroupID2){
         group_array[groupToMergeTo]->tree_levels=newLevel;
      }
      else if(group_array[groupToMerge]->tree_levels->tree_root!=nullptr){ //only tree in group to merge
+            delete group_array[groupToMergeTo]->tree_levels;
           group_array[groupToMergeTo]->tree_levels= group_array[groupToMerge]->tree_levels;
           group_array[groupToMerge]->tree_levels=nullptr;
      }
      
      //merge scores array
-     for(int i = 0; i<scale;i++){
+     for(int i = 0; i<=scale;i++){
          group_array[groupToMergeTo]->array_scores[i].players_counter+=group_array[groupToMerge]->array_scores[i].players_counter;
          if((group_array[groupToMerge]->array_scores[i]).tree_levels->tree_root!=nullptr && (group_array[groupToMergeTo]->array_scores[i]).tree_levels->tree_root!=nullptr){
              {
@@ -89,6 +90,7 @@ StatusType PlayerManager::MergeGroups(int GroupID1, int GroupID2){
              }
          }
          else if (group_array[groupToMerge]->array_scores[i].tree_levels->tree_root!=nullptr && (group_array[groupToMergeTo]->array_scores[i]).tree_levels->tree_root==nullptr){
+             delete group_array[groupToMergeTo]->array_scores[i].tree_levels;
              group_array[groupToMergeTo]->array_scores[i].tree_levels=group_array[groupToMerge]->array_scores[i].tree_levels;
              group_array[groupToMerge]->array_scores[i].tree_levels=nullptr;
          }
@@ -141,7 +143,7 @@ void PlayerManager::updateLevel(RankAVLTree<LEVEL,LevelRank>* LevelTree, int lev
         LevelTree->RemoveNode(level);
         return;
     }
-    else if(levelToChange && levelToChange->w_info.num_of_players_in_level>1){
+    else if(levelToChange && levelToChange->w_info.num_of_players_in_level>=1){
         int num_of_players=levelToChange->w_info.num_of_players_in_level+change;
         LevelTree->RemoveNode(level);
         LevelRank newLevel = LevelRank(level,num_of_players);
@@ -289,7 +291,7 @@ double PlayerManager::GetPlayersInLevelBound(RankAVLTree<LEVEL,LevelRank>* Level
         }
     }
     else if(lowerLevel<=0){
-        LevelRank Maximum = LevelTree->Rank(LevelTree->tree_root,MinLow->data);
+        LevelRank Maximum = LevelTree->Rank(LevelTree->tree_root,max->data);
         LowerPlayer=player_counter-Maximum.num_of_players_in_level;
     }
     return CountHigh-CountLow+LowerPlayer;

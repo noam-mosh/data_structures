@@ -185,6 +185,7 @@ void HashTable<T>::Resize(){
            while (curr!=nullptr)
                {
                    InsertToTable(curr->element,HashFunction(curr->element.key()),newTable);
+                   curr=curr->next;
                }
            }
         for(int i =0; i<old_table_size;i++){

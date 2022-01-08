@@ -2,21 +2,15 @@
 #define WET2_GROUP_H
 #include "Scores.h"
 #define MAX_SCALE 200
-#define NO_PLAYER 0
-#define LEVEL int 
+#define LEVEL int
 
 namespace data_structures {
 class Group{
     public:
-    Group(int scale):playerCounter(NO_PLAYERS),array_scores(new Scores[scale]),tree_levels(new RankAVLTree<LEVEL, LevelRank>()){}
+    explicit Group(int scale):playerCounter(NO_PLAYERS),array_scores(new Scores[scale+1]),tree_levels(new RankAVLTree<LEVEL, LevelRank>()){}
     ~Group(){
-        if(array_scores){
-        
         delete[] array_scores;
-        }
-        if(tree_levels){
-            delete tree_levels;
-        }
+        delete tree_levels;
     }
     Group(const Group& other)=default;//check
     Group& operator=(const Group& node) = default;//check

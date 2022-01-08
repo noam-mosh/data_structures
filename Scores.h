@@ -13,7 +13,7 @@ class Scores{
     Scores(): players_counter(NO_PLAYERS),tree_levels(new RankAVLTree<LEVEL,LevelRank>()){}
     ~Scores(){
         if(tree_levels)
-        delete tree_levels;
+            delete tree_levels;
     }
     Scores(const Scores& other)=default;
     Scores& operator=(const Scores& other) = default;

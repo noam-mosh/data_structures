@@ -7,7 +7,7 @@ using namespace data_structures;
 
 
 PlayerManager::PlayerManager(int k,int scale):all_players_counter(NO_PLAYERS),scale(scale),group_number(k),groups(k),group_array(new Group* [k+1]),
-    levels(new RankAVLTree<LEVEL,LevelRank>()),scores_array(new Scores[scale]){
+    levels(new RankAVLTree<LEVEL,LevelRank>()),scores_array(new Scores[scale+1]){
         /*UnionFind group(k);
         groups= group;*/
         for(int i=1; i<=k;i++){
@@ -37,6 +37,8 @@ StatusType PlayerManager::MergeGroups(int GroupID1, int GroupID2){
     }
     int group1 = groups.Find(GroupID1);
     int group2 = groups.Find(GroupID2);
+    if (group1 == -1 || group2 == -1)
+        return INVALID_INPUT;
     if(group1==group2){//already in the same group
         return SUCCESS;
     }
@@ -45,7 +47,7 @@ StatusType PlayerManager::MergeGroups(int GroupID1, int GroupID2){
     if (groupToMergeTo==group1){
         groupToMerge=group2;
      }
-     else{
+    else{
          groupToMerge=group1;
      }
      //if 1 of the group is empty
@@ -59,7 +61,7 @@ StatusType PlayerManager::MergeGroups(int GroupID1, int GroupID2){
      }
      //merge level group trees
      if(group_array[group1]->tree_levels->tree_root!=nullptr && group_array[group2]->tree_levels->tree_root!=nullptr){
-         RankAVLTree<LEVEL,LevelRank>* newLevel = new RankAVLTree<LEVEL,LevelRank>(MergeTwoAVLTrees(group_array[group1]->tree_levels,group_array[group2]->tree_levels));
+         auto* newLevel = new RankAVLTree<LEVEL,LevelRank>(MergeTwoAVLTrees(group_array[group1]->tree_levels,group_array[group2]->tree_levels));
          if(!newLevel){
              return ALLOCATION_ERROR;
              }
@@ -72,19 +74,23 @@ StatusType PlayerManager::MergeGroups(int GroupID1, int GroupID2){
      }
      
      //merge scores array
-     for(int i =0; i<scale;i++){
+     for(int i = 0; i<scale;i++){
          group_array[groupToMergeTo]->array_scores[i].players_counter+=group_array[groupToMerge]->array_scores[i].players_counter;
-            if((group_array[groupToMerge]->array_scores[i]).tree_levels->tree_root!=nullptr && (group_array[groupToMergeTo]->array_scores[i]).tree_levels->tree_root!=nullptr){
-             RankAVLTree<LEVEL,LevelRank>* newLevelScore = new RankAVLTree<LEVEL,LevelRank>(MergeTwoAVLTrees((group_array[group1]->array_scores[i].tree_levels),(group_array[group2]->array_scores[i].tree_levels)));
-             if(!newLevelScore){
-                 return ALLOCATION_ERROR;
+         if((group_array[groupToMerge]->array_scores[i]).tree_levels->tree_root!=nullptr && (group_array[groupToMergeTo]->array_scores[i]).tree_levels->tree_root!=nullptr){
+             {
+                 auto *newLevelScore = new RankAVLTree<LEVEL, LevelRank>(
+                         MergeTwoAVLTrees((group_array[group1]->array_scores[i].tree_levels),
+                                          (group_array[group2]->array_scores[i].tree_levels)));
+                 if (!newLevelScore) {
+                     return ALLOCATION_ERROR;
+                 }
+                 delete group_array[groupToMergeTo]->array_scores[i].tree_levels;
+                 group_array[groupToMergeTo]->array_scores[i].tree_levels = newLevelScore;
              }
-             delete group_array[groupToMergeTo]->array_scores[i].tree_levels;
-             group_array[groupToMergeTo]->array_scores[i].tree_levels=newLevelScore;
          }
          else if (group_array[groupToMerge]->array_scores[i].tree_levels->tree_root!=nullptr && (group_array[groupToMergeTo]->array_scores[i]).tree_levels->tree_root==nullptr){
              group_array[groupToMergeTo]->array_scores[i].tree_levels=group_array[groupToMerge]->array_scores[i].tree_levels;
-             group_array[groupToMerge]->array_scores[i].tree_levels=nullptr;  
+             group_array[groupToMerge]->array_scores[i].tree_levels=nullptr;
          }
      }
      group_array[groupToMergeTo]->playerCounter=group_array[group1]->playerCounter+group_array[group2]->playerCounter;
@@ -98,7 +104,7 @@ StatusType PlayerManager::AddPlayer(int PlayerID, int GroupID, int score){
         return INVALID_INPUT;
     }
     Player player(PlayerID,GroupID,score);
-    HashStatus status= players.Insert(player);
+    HashStatus status= players_.Insert(player);
     if (status==ALREADY_EXISTS){
         return FAILURE;
     }
@@ -106,9 +112,10 @@ StatusType PlayerManager::AddPlayer(int PlayerID, int GroupID, int score){
         return ALLOCATION_ERROR;
     }
     all_players_counter++;
+    scores_array[score].players_counter++;
     int group= groups.Find(GroupID);
-    if (group_array[group]==nullptr){
-        group_array[group]=new Group(scale);
+    if (group_array[group] == nullptr){
+        group_array[group]= new Group(scale+1);
         group_array[group]->playerCounter++;
         group_array[group]->array_scores[score].players_counter++;
     }
@@ -120,7 +127,8 @@ StatusType PlayerManager::AddPlayer(int PlayerID, int GroupID, int score){
 }
 
 void PlayerManager::updateLevel(RankAVLTree<LEVEL,LevelRank>* LevelTree, int level, int change){//change -1 or 1
-    if(LevelTree==nullptr){
+    if(LevelTree == nullptr){
+//        || LevelTree->tree_root == nullptr
         return;
     }
     AVLNode<LEVEL,LevelRank>* levelToChange = LevelTree->Find(LevelTree->tree_root,level);
@@ -139,8 +147,6 @@ void PlayerManager::updateLevel(RankAVLTree<LEVEL,LevelRank>* LevelTree, int lev
         LevelRank newLevel = LevelRank(level,num_of_players);
         LevelTree->Insert(level,newLevel);
     }
-    return;
-
 }
 
 StatusType PlayerManager::RemovePlayer(int PlayerID){
@@ -148,7 +154,7 @@ StatusType PlayerManager::RemovePlayer(int PlayerID){
         return INVALID_INPUT;
     }
     Player player(PlayerID);
-    Node<Player>* MyPlayer=players.Find(player);
+    Node<Player>* MyPlayer=players_.Find(player);
     if(!MyPlayer){
         return FAILURE;
     }
@@ -172,7 +178,7 @@ StatusType PlayerManager::RemovePlayer(int PlayerID){
     group_array[player_group]->array_scores[player_score].players_counter--;
     scores_array[player_score].players_counter--;
     all_players_counter--;
-    players.remove(player);
+    players_.remove(player);
     return SUCCESS;
 }
 
@@ -181,7 +187,7 @@ StatusType PlayerManager::IncreasePlayerIDLevel(int PlayerID, int LevelIncrease)
         return INVALID_INPUT;
     }
     Player player(PlayerID);
-    Node<Player>* MyPlayer=players.Find(player);
+    Node<Player>* MyPlayer=players_.Find(player);
     if(!MyPlayer){
         return FAILURE;
     }
@@ -218,7 +224,7 @@ StatusType PlayerManager::ChangePlayerIDScore(int PlayerID, int NewScore){
         return INVALID_INPUT;
     }
     Player player(PlayerID);
-    Node<Player>* MyPlayer=players.Find(player);
+    Node<Player>* MyPlayer=players_.Find(player);
     if(!MyPlayer){
         return FAILURE;
     }
@@ -253,11 +259,8 @@ StatusType PlayerManager::ChangePlayerIDScore(int PlayerID, int NewScore){
 double PlayerManager::GetPlayersInLevelBound(RankAVLTree<LEVEL,LevelRank>* LevelTree ,int player_counter, int lowerLevel, int higherLevel ){
     if(LevelTree->tree_root==nullptr){
         if(lowerLevel>0)
-        return 0;
-        if (lowerLevel<=0)
-        {
-            return player_counter;
-        }
+            return 0;
+        return player_counter;
     }
     AVLNode<LEVEL,LevelRank>* max=LevelTree->GetMax(LevelTree->tree_root);
     if(max->data<lowerLevel){
@@ -307,13 +310,13 @@ StatusType PlayerManager::GetPercentOfPlayersWithScoreInBounds(int GroupID, int 
         return FAILURE;
     }
     double denominator=0,counter=0;
-     if(GroupID!=0){
+    if(GroupID!=0){
         int MyGroup = groups.Find(GroupID);
-        if(group_array[MyGroup]==nullptr){
+        if(MyGroup == -1 || group_array[MyGroup]==nullptr){
             return FAILURE;
         }
         if(group_array[MyGroup]->array_scores[score].tree_levels->size==0){
-            denominator=0;
+            denominator=group_array[MyGroup]->array_scores[score].players_counter;
         }
         else{
             denominator= GetPlayersInLevelBound((group_array[MyGroup]->array_scores[score].tree_levels) ,group_array[MyGroup]->array_scores[score].players_counter,lowerLevel,higherLevel);
@@ -325,21 +328,22 @@ StatusType PlayerManager::GetPercentOfPlayersWithScoreInBounds(int GroupID, int 
         *players= 100.00*(denominator/counter);
         return SUCCESS;
     }
-    else if(GroupID==0){
+    else{
         if(scores_array[score].tree_levels->size==0){
-            denominator=0;
+            denominator=scores_array[score].players_counter;
         }
         else{
             denominator= GetPlayersInLevelBound((scores_array[score].tree_levels) ,scores_array[score].players_counter,lowerLevel,higherLevel);
         }
-        double counter = GetPlayersInLevelBound((levels) ,all_players_counter,lowerLevel,higherLevel);
+        counter = GetPlayersInLevelBound((levels) ,all_players_counter,lowerLevel,higherLevel);
+//        if (lowerLevel<=0)
+//            counter+=
         if(counter == 0){
             return FAILURE;
         }
         *players= 100.00*(denominator/counter);
         return SUCCESS;
     }
-        return SUCCESS;
 }
 
 
@@ -357,26 +361,25 @@ StatusType PlayerManager::AverageHighestPlayerLevelByGroupHelp(RankAVLTree<LEVEL
     }
     AVLNode<LEVEL,LevelRank>* m_count_level= levelTree->SelectMinBigger(levelTree->tree_root,max_count_level-m);
     LevelRank mRank = levelTree->Rank(levelTree->tree_root,m_count_level->data);
-    *avg= ((maxRank.num_of_players_mult_with_level)-(mRank.num_of_players_mult_with_level)+(m-(maxRank.num_of_players_in_level-mRank.num_of_players_in_level))*m_count_level->data)/m;
+    *avg= ((double)(maxRank.num_of_players_mult_with_level)-(mRank.num_of_players_mult_with_level)+(m-(maxRank.num_of_players_in_level-mRank.num_of_players_in_level))*m_count_level->data)/m;
     return SUCCESS;
 }
 
-StatusType PlayerManager::AverageHighestPlayerLevelByGroup(int GroupID, int m, double * level){
-    if( !level || GroupID<MIN_GROUP_ID || GroupID> group_number || m<=0){
-    return INVALID_INPUT;
+StatusType PlayerManager::AverageHighestPlayerLevelByGroup(int GroupID, int m, double * level) {
+    if (!level || GroupID < MIN_GROUP_ID || GroupID > group_number || m <= 0) {
+        return INVALID_INPUT;
     }
-    if(GroupID!=0){
+    if (GroupID != 0) {
         int MyGroup = groups.Find(GroupID);
-        if(group_array[MyGroup]==nullptr ||group_array[MyGroup]->playerCounter<m){
+        if (MyGroup == -1 || group_array[MyGroup] == nullptr || group_array[MyGroup]->playerCounter < m) {
             return FAILURE;
         }
-        return AverageHighestPlayerLevelByGroupHelp(group_array[MyGroup]->tree_levels,m,level);
-    }
-    else if(GroupID==0){
-        if(all_players_counter<m){
+        return AverageHighestPlayerLevelByGroupHelp(group_array[MyGroup]->tree_levels, m, level);
+    } else {
+        if (all_players_counter < m) {
             return FAILURE;
         }
-        return AverageHighestPlayerLevelByGroupHelp(levels,m,level);
+        return AverageHighestPlayerLevelByGroupHelp(levels, m, level);
     }
-        return FAILURE;
+    return FAILURE;
 }

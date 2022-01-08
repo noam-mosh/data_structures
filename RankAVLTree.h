@@ -64,11 +64,11 @@ namespace data_structures {
     S RankAVLTree<T,S>::Rank(AVLNode<T,S>* root, int key)
     {
         S r{};
-        while (root->data != key)
+        while (root && root->data != key)
         {
             if (root->data < key) {//changed to check
                 if((root->left)){
-                r += root->left->w + root->w_info;
+                    r += root->left->w + root->w_info;
                 }
                 else{
                     r+=root->w_info;
@@ -100,28 +100,30 @@ namespace data_structures {
             return root;
         else if (root->left)
             return SelectMinBigger(root->left, k);
+        else if (root->right && root->w_info < k)
+            return root->right;
         return root;
     }
 
     template<class T, class S>
     AVLNode<T,S>* RankAVLTree<T,S>::MinBigger(AVLNode<T,S>* root, T key){
-    if(root==nullptr){
-        return root;
-    }
-    if(root->data>key){
-        AVLNode<T,S>* Min=MinBigger(root->left,key);
-        if(Min==nullptr){
+        if(root==nullptr){
             return root;
         }
-        else{
-            return Min;
+        if(root->data>key){
+            AVLNode<T,S>* Min=MinBigger(root->left,key);
+            if(Min==nullptr){
+                return root;
+            }
+            else{
+                return Min;
+            }
         }
+        if(root->data<=key){
+            return MinBigger(root->right,key);
+        }
+        return nullptr;
     }
-    if(root->data<=key){
-        return MinBigger(root->right,key);
-    }    
-    return nullptr;
-}
 
     template<class T, class S>
     T* MergeArrays(T* array1, T* array2, int n1, int n2);
@@ -160,9 +162,9 @@ namespace data_structures {
 
     template<class T, class S>
     AVLNode<T,S>* RankAVLTree<T,S>::InsertAVLNode(AVLNode<T,S>* root, AVLNode<T,S>* inserted) {
-        if(root==nullptr){
-            return nullptr;
-        }
+//        if(root==nullptr){
+//            return nullptr;
+//        }
         if (root->GetData() == inserted->GetData())
             return nullptr;
         if (root->GetData() > inserted->GetData()) {
@@ -522,16 +524,16 @@ namespace data_structures {
                 mergedArray[k++] = array1[i++];
                 (*n)++;
             }
-            if (array1[i] == array2[j])
+            else if (array2[j] < array1[i])
             {
-                array1[i].w_info += array2[j].w_info;
-                mergedArray[k++] = array1[i++];
-                j++;
+                mergedArray[k++] = array2[j++];
                 (*n)++;
             }
             else
             {
-                mergedArray[k++] = array2[j++];
+                array1[i].w_info += array2[j].w_info;
+                mergedArray[k++] = array1[i++];
+                j++;
                 (*n)++;
             }
         }
@@ -552,10 +554,10 @@ namespace data_structures {
 
     template <class T, class S>
     RankAVLTree<T,S> MergeTwoAVLTrees(RankAVLTree<T,S>* tree1, RankAVLTree<T,S>* tree2){
-        int size1 = tree1->size, size2 = tree2->size, new_size=0;
+        int size1 = tree1->size, size2 = tree2->size;
         auto* array1 = new AVLNode<T,S>[size1]();
         auto* array2 = new AVLNode<T,S>[size2]();
-        int index1 = 0, index2 = 0;
+        int index1 = 0, index2 = 0, new_size=0;
         tree1->StoreInOrder(tree1->tree_root, array1, size1, &index1);
         tree2->StoreInOrder(tree2->tree_root, array2, size2, &index2);
         AVLNode<T,S>* mergedArray = MergeArrays(array1, array2, size1, size2, &new_size);

@@ -45,7 +45,7 @@ namespace data_structures {
     Group** group_array;
     RankAVLTree<LEVEL,LevelRank>* levels;
     Scores* scores_array;
-    HashTable<Player> players;
+    HashTable<Player> players_;
     };
     
 }

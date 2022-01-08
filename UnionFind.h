@@ -49,7 +49,10 @@ namespace data_structures {
         }
 
         int Union(int p, int q) const {
+
             // p and q are the groups after calling find
+            if (p-1 < 0 || q-1 < 0 || p-1 >= group_size || q-1 >=group_size)
+                return -1;
             if (size[p - 1] < size[q - 1]) {
                 parent[p - 1] = q - 1;
                 size[q - 1] += size[p - 1];

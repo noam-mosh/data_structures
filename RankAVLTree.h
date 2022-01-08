@@ -68,7 +68,7 @@ namespace data_structures {
         {
             if (root->data < key) {//changed to check
                 if((root->left)){
-                    r += root->left->w + root->w_info;
+                    r += (root->left->w + root->w_info);
                 }
                 else{
                     r+=root->w_info;

@@ -39,13 +39,13 @@ namespace data_structures {
 
         LevelRank &operator+=(int num_of_players) {
             num_of_players_in_level += num_of_players;
-            num_of_players_mult_with_level += num_of_players * level;
+            num_of_players_mult_with_level += (num_of_players * level);
             return *this;
         };
 
         LevelRank &operator-=(int num_of_players) {
             num_of_players_in_level -= num_of_players;
-            num_of_players_mult_with_level -= num_of_players * level;
+            num_of_players_mult_with_level -= (num_of_players * level);
             return *this;
         };
 
@@ -61,7 +61,9 @@ namespace data_structures {
         };
 
         LevelRank operator+(const LevelRank &level_node) const {
-            LevelRank new_level(level, num_of_players_in_level);
+            LevelRank new_level(0, 0);
+            new_level.num_of_players_in_level += this->num_of_players_in_level;
+            new_level.num_of_players_mult_with_level += this->num_of_players_mult_with_level;
             new_level.num_of_players_in_level += level_node.num_of_players_in_level;
             new_level.num_of_players_mult_with_level += level_node.num_of_players_mult_with_level;
             return new_level;

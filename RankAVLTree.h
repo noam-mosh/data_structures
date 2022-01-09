@@ -81,7 +81,7 @@ namespace data_structures {
         if (root->left == nullptr)
             r += root->w_info;
         else
-            r += root->left->w + root->w_info;
+            r += (root->left->w + root->w_info);
         return r;
     }
 
@@ -268,9 +268,10 @@ namespace data_structures {
         }
         root->SetFather(newRoot);
 
+        //Update weight
         root->w = root->w_info;
         if (root->left)
-            root->w = root->left->w;
+            root->w += root->left->w;
         if (root->right)
             root->w += root->right->w;
 

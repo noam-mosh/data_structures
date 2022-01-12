@@ -304,44 +304,58 @@ StatusType PlayerManager::GetPercentOfPlayersWithScoreInBounds(int GroupID, int 
     if( !players || GroupID<MIN_GROUP_ID || GroupID> group_number){
     return INVALID_INPUT;
     }
-    if(score<=0 || score>scale){
-        *players=0;
-        return SUCCESS;
-    }
-    if(higherLevel<0){
+    if (higherLevel<0 || higherLevel<lowerLevel)
+    {
         return FAILURE;
-    }
+    } 
     double denominator=0,counter=0;
     if(GroupID!=0){
         int MyGroup = groups.Find(GroupID);
         if(MyGroup == -1 || group_array[MyGroup]==nullptr){
             return FAILURE;
         }
-        if(group_array[MyGroup]->array_scores[score].tree_levels->size==0){
-            denominator=group_array[MyGroup]->array_scores[score].players_counter;
-        }
-        else{
-            denominator= GetPlayersInLevelBound((group_array[MyGroup]->array_scores[score].tree_levels) ,group_array[MyGroup]->array_scores[score].players_counter,lowerLevel,higherLevel);
-        }
         counter = GetPlayersInLevelBound((group_array[MyGroup]->tree_levels) ,group_array[MyGroup]->playerCounter,lowerLevel,higherLevel);
         if(counter == 0){
             return FAILURE;
         }
+        if(score<=0 || score>scale){
+            *players=0;
+            return SUCCESS;
+            } 
+        if(group_array[MyGroup]->array_scores[score].tree_levels->size==0){
+            if(lowerLevel==0){
+                denominator=group_array[MyGroup]->array_scores[score].players_counter;
+            }
+            else{
+                denominator=0;
+            }
+        }
+        else{
+            denominator= GetPlayersInLevelBound((group_array[MyGroup]->array_scores[score].tree_levels) ,group_array[MyGroup]->array_scores[score].players_counter,lowerLevel,higherLevel);
+        }
+
         *players= 100.00*(denominator/counter);
         return SUCCESS;
     }
     else{
+        counter = GetPlayersInLevelBound((levels) ,all_players_counter,lowerLevel,higherLevel);
+        if(counter == 0){
+            return FAILURE;
+        }
+        if(score<=0 || score>scale){
+            *players=0;
+            return SUCCESS;
+        } 
         if(scores_array[score].tree_levels->size==0){
-            denominator=scores_array[score].players_counter;
+            if(lowerLevel==0){
+                denominator=scores_array[score].players_counter;
+            }
+            else{
+                denominator=0;
+            }
         }
         else{
             denominator= GetPlayersInLevelBound((scores_array[score].tree_levels) ,scores_array[score].players_counter,lowerLevel,higherLevel);
-        }
-        counter = GetPlayersInLevelBound((levels) ,all_players_counter,lowerLevel,higherLevel);
-//        if (lowerLevel<=0)
-//            counter+=
-        if(counter == 0){
-            return FAILURE;
         }
         *players= 100.00*(denominator/counter);
         return SUCCESS;

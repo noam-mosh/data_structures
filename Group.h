@@ -7,7 +7,7 @@
 namespace data_structures {
 class Group{
     public:
-    explicit Group(int scale):playerCounter(NO_PLAYERS),array_scores(new Scores[scale+1]),tree_levels(new RankAVLTree<LEVEL, LevelRank>()){}
+    explicit Group(int scale):playerCounter(NO_PLAYERS),array_scores(new Scores[scale]),tree_levels(new RankAVLTree<LEVEL, LevelRank>()){}
     ~Group(){
         delete[] array_scores;
         delete tree_levels;

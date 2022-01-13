@@ -17,7 +17,7 @@ namespace data_structures {
 //    public:
         AVLNode() = default;
 
-        explicit AVLNode(T &value, S &weight_info) :data(value), father(nullptr), left(nullptr), right(nullptr), w(S(weight_info)), w_info(weight_info) {}
+        explicit AVLNode(T &value, S &weight_info) :data(value), w(S(weight_info)), w_info(weight_info), father(nullptr), left(nullptr), right(nullptr) {}
 
         ~AVLNode() = default;
 

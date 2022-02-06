@@ -323,7 +323,7 @@ StatusType PlayerManager::GetPercentOfPlayersWithScoreInBounds(int GroupID, int 
             return SUCCESS;
             } 
         if(group_array[MyGroup-1]->array_scores[score-1].tree_levels->size==0){
-            if(lowerLevel==0){
+            if(lowerLevel<=0){
                 denominator=group_array[MyGroup-1]->array_scores[score-1].players_counter;
             }
             else{
@@ -347,7 +347,7 @@ StatusType PlayerManager::GetPercentOfPlayersWithScoreInBounds(int GroupID, int 
             return SUCCESS;
         } 
         if(scores_array[score-1].tree_levels->size==0){
-            if(lowerLevel==0){
+            if(lowerLevel<=0){
                 denominator=scores_array[score-1].players_counter;
             }
             else{
